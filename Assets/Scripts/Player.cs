@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Windows;
 
 public class Player : MonoBehaviour
 {
@@ -17,12 +18,18 @@ public class Player : MonoBehaviour
     [SerializeField] private float radioDeteccion;
     [SerializeField] private LayerMask queEsSuelo;
 
+    [Header("Interact")]
+    [SerializeField] private float interactRange = 2f;
+
     private CharacterController controller;
     private Animator anim;
     private Vector3 direccionMovimiento;
     private Vector3 direccionInput;
     private Vector3 velocidadVertical;
     private Rigidbody[] rbs;
+    private bool hasKey = false;
+
+    public bool HasKey { get => hasKey; set => hasKey = value; }
 
     private void Awake()
     {
@@ -34,6 +41,7 @@ public class Player : MonoBehaviour
     {
         inputManager.OnSaltar += Saltar;
         inputManager.OnMover += Mover;
+        inputManager.OnInteract += Interact;
     }
 
     // Solo se va a ejecutar cuando se actualice el input de movimiento
@@ -49,6 +57,46 @@ public class Player : MonoBehaviour
             velocidadVertical.y = Mathf.Sqrt(-2 * factorGravedad * alturaDeSalto);
             anim.SetTrigger("jump");
         }
+    }
+    private void Interact()
+    {
+        IInteractuable interactuable = GetInteractuable();
+        if (interactuable != null)
+        {
+            interactuable.Interact(transform);
+        }
+    }
+
+    public IInteractuable GetInteractuable()
+    {
+        List<IInteractuable> interactuableList = new List<IInteractuable>();
+        Collider[] colliderArray = Physics.OverlapSphere(transform.position, interactRange); // detecta todos los colliders en el radio
+        foreach (Collider collider in colliderArray)
+        {
+            if (collider.TryGetComponent(out IInteractuable interactuable))
+            {
+                interactuableList.Add(interactuable);
+            }
+        }
+
+        IInteractuable closestInteractuable = null;
+        foreach (IInteractuable interactuable in interactuableList)
+        {
+            if (closestInteractuable == null)
+            {
+                closestInteractuable = interactuable;
+            }
+            else
+            {
+                if (Vector3.Distance(transform.position, interactuable.GetTransform().position) <
+                    Vector3.Distance(transform.position, closestInteractuable.GetTransform().position))
+                {
+                    closestInteractuable = interactuable;
+                }
+            }
+        }
+
+        return closestInteractuable;
     }
 
     // Start is called before the first frame update
@@ -110,5 +158,11 @@ public class Player : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawSphere(pies.position, radioDeteccion);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, interactRange);
     }
 }

@@ -117,6 +117,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""807e18b0-1592-4fbb-9871-7061a36f4329"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -284,6 +293,28 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""action"": ""MoverCamara"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b34fce10-5255-49cf-a160-d279b7388a36"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dd174c48-c3c1-4d94-9dd9-e113b3e63f78"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -295,6 +326,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         m_Gameplay_Mover = m_Gameplay.FindAction("Mover", throwIfNotFound: true);
         m_Gameplay_Saltar = m_Gameplay.FindAction("Saltar", throwIfNotFound: true);
         m_Gameplay_MoverCamara = m_Gameplay.FindAction("MoverCamara", throwIfNotFound: true);
+        m_Gameplay_Interact = m_Gameplay.FindAction("Interact", throwIfNotFound: true);
     }
 
     ~@Controls()
@@ -378,6 +410,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Mover;
     private readonly InputAction m_Gameplay_Saltar;
     private readonly InputAction m_Gameplay_MoverCamara;
+    private readonly InputAction m_Gameplay_Interact;
     /// <summary>
     /// Provides access to input actions defined in input action map "Gameplay".
     /// </summary>
@@ -401,6 +434,10 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gameplay/MoverCamara".
         /// </summary>
         public InputAction @MoverCamara => m_Wrapper.m_Gameplay_MoverCamara;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/Interact".
+        /// </summary>
+        public InputAction @Interact => m_Wrapper.m_Gameplay_Interact;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -436,6 +473,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @MoverCamara.started += instance.OnMoverCamara;
             @MoverCamara.performed += instance.OnMoverCamara;
             @MoverCamara.canceled += instance.OnMoverCamara;
+            @Interact.started += instance.OnInteract;
+            @Interact.performed += instance.OnInteract;
+            @Interact.canceled += instance.OnInteract;
         }
 
         /// <summary>
@@ -456,6 +496,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @MoverCamara.started -= instance.OnMoverCamara;
             @MoverCamara.performed -= instance.OnMoverCamara;
             @MoverCamara.canceled -= instance.OnMoverCamara;
+            @Interact.started -= instance.OnInteract;
+            @Interact.performed -= instance.OnInteract;
+            @Interact.canceled -= instance.OnInteract;
         }
 
         /// <summary>
@@ -517,5 +560,12 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMoverCamara(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Interact" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInteract(InputAction.CallbackContext context);
     }
 }
