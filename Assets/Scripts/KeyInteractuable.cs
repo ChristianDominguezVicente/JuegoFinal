@@ -3,7 +3,7 @@ using UnityEngine;
 public class KeyInteractuable : MonoBehaviour, IInteractuable
 {
     [SerializeField] private string interactText;
-    [SerializeField] private float rotationVelocity = 50f;
+    [SerializeField] private float rotationVelocity;
     [SerializeField] private Player player;
 
     public string GetInteractText()
@@ -20,8 +20,9 @@ public class KeyInteractuable : MonoBehaviour, IInteractuable
     {
         if (player != null)
         {
-            player.HasKey = true;
+            player.KeyCount++;
             gameObject.SetActive(false);
+            player.Interacting = false;
         }
     }
 

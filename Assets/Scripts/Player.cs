@@ -8,6 +8,7 @@ using UnityEngine.Windows;
 public class Player : MonoBehaviour
 {
     [SerializeField] private float velocidadMovimiento;
+    [SerializeField] private float velocidadMovimientoCrouch;
     [SerializeField] private float factorGravedad;
     [SerializeField] private float alturaDeSalto;
     [SerializeField] private Transform camara;
@@ -19,7 +20,14 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask queEsSuelo;
 
     [Header("Interact")]
-    [SerializeField] private float interactRange = 2f;
+    [SerializeField] private float interactRange;
+
+    [Header("Crouch")]
+    [SerializeField] private float alturaCrouch;
+    [SerializeField] private float centroCrouch;
+    [SerializeField] private float alturaNormal;
+    [SerializeField] private float centroNormal;
+
 
     private CharacterController controller;
     private Animator anim;
@@ -27,9 +35,12 @@ public class Player : MonoBehaviour
     private Vector3 direccionInput;
     private Vector3 velocidadVertical;
     private Rigidbody[] rbs;
-    private bool hasKey = false;
+    private int keyCount = 0;
+    private bool crouching = false;
+    private bool interacting = false;
 
-    public bool HasKey { get => hasKey; set => hasKey = value; }
+    public int KeyCount { get => keyCount; set => keyCount = value; }
+    public bool Interacting { get => interacting; set => interacting = value; }
 
     private void Awake()
     {
@@ -42,6 +53,15 @@ public class Player : MonoBehaviour
         inputManager.OnSaltar += Saltar;
         inputManager.OnMover += Mover;
         inputManager.OnInteract += Interact;
+        inputManager.OnCrouch += Crouch;
+    }
+
+    private void OnDisable()
+    {
+        inputManager.OnSaltar -= Saltar;
+        inputManager.OnMover -= Mover;
+        inputManager.OnInteract -= Interact;
+        inputManager.OnCrouch -= Crouch;
     }
 
     // Solo se va a ejecutar cuando se actualice el input de movimiento
@@ -52,7 +72,9 @@ public class Player : MonoBehaviour
 
     private void Saltar()
     {
-        if (EstoyEnSuelo())
+        if (interacting) return;
+
+        if (EstoyEnSuelo() && !crouching)
         {
             velocidadVertical.y = Mathf.Sqrt(-2 * factorGravedad * alturaDeSalto);
             anim.SetTrigger("jump");
@@ -63,6 +85,7 @@ public class Player : MonoBehaviour
         IInteractuable interactuable = GetInteractuable();
         if (interactuable != null)
         {
+            interacting = true;
             interactuable.Interact(transform);
         }
     }
@@ -99,6 +122,35 @@ public class Player : MonoBehaviour
         return closestInteractuable;
     }
 
+    private void Crouch()
+    {
+        if (crouching)
+        {
+            if (CanStading())
+            {
+                crouching = false;
+                controller.height = alturaNormal;
+                controller.center = new Vector3(0, centroNormal, 0);
+                anim.SetBool("crouch", false);
+            }
+        }
+        else
+        {
+            crouching = true;
+            controller.height = alturaCrouch;
+            controller.center = new Vector3(0, centroCrouch, 0);
+            anim.SetBool("crouch", true);
+        }
+    }
+
+    private bool CanStading()
+    {
+        Ray ray = new Ray(transform.position, Vector3.up);
+        float distancia = alturaNormal - alturaCrouch;
+
+        return !Physics.SphereCast(ray, 0.3f, distancia, queEsSuelo);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -110,9 +162,26 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (interacting)
+        {
+            anim.SetFloat("velocidad", 0);
+            return;
+        }
+
         direccionMovimiento = camara.forward * direccionInput.z + camara.right * direccionInput.x;
         direccionMovimiento.y = 0;
-        controller.Move(direccionMovimiento * velocidadMovimiento * Time.deltaTime);
+
+        float velocidad;
+        if (crouching)
+        {
+            velocidad = velocidadMovimientoCrouch;
+        }
+        else
+        {
+            velocidad = velocidadMovimiento;
+        }
+
+        controller.Move(direccionMovimiento * velocidad * Time.deltaTime);
         anim.SetFloat("velocidad", controller.velocity.magnitude);
 
         if(direccionMovimiento.sqrMagnitude > 0)
@@ -158,6 +227,11 @@ public class Player : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawSphere(pies.position, radioDeteccion);
+
+        if (!Application.isPlaying) return;
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, Vector3.up * (alturaNormal - alturaCrouch));
     }
 
     private void OnDrawGizmosSelected()

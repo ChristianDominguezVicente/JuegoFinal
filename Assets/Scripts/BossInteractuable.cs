@@ -17,7 +17,9 @@ public class BossInteractuable : MonoBehaviour, IInteractuable
     [SerializeField] private TextMeshProUGUI textoDialogo;
     [SerializeField] private Player player;
     [SerializeField] private Image fadeOut;
-    [SerializeField] private float durationFade = 2f;
+    [SerializeField] private float durationFade;
+    [SerializeField] private int requiredKeys;
+    [SerializeField] private string sceneToLoad;
 
     private bool hablando = false;
     private int indiceActual = -1;
@@ -54,7 +56,7 @@ public class BossInteractuable : MonoBehaviour, IInteractuable
                 anim.SetBool("talking", true);
             }
 
-            if (player.HasKey)
+            if (player.KeyCount >= requiredKeys)
             {
                 frases = frasesConKey;
             }
@@ -91,10 +93,12 @@ public class BossInteractuable : MonoBehaviour, IInteractuable
         cuadroDialogo.SetActive(false);
         anim.SetBool("talking", false);
 
-        if (player.HasKey)
+        if (player.KeyCount >= requiredKeys)
         {
             StartCoroutine(FadeOut());
         }
+
+        player.Interacting = false;
     }
 
     private IEnumerator EscribirFrase()
@@ -131,6 +135,6 @@ public class BossInteractuable : MonoBehaviour, IInteractuable
             yield return null;
         }
 
-        SceneManager.LoadScene("Level2");
+        SceneManager.LoadScene(sceneToLoad);
     }
 }

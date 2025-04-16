@@ -2,12 +2,14 @@ using UnityEngine;
 
 public class PlataformaMovil : MonoBehaviour
 {
+    [SerializeField] private Vector3 velocity;
+
     private Rigidbody rb;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.linearVelocity = new Vector3(-2, 0, 0);
+        rb.linearVelocity = velocity;
         InvokeRepeating(nameof(ChangeDirection), 0f, 3f);
     }
 

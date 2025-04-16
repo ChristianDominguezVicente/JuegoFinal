@@ -5,6 +5,7 @@ public class SphereInteractuable : MonoBehaviour, IInteractuable
     [SerializeField] private int sphereID;
     [SerializeField] private PuzzleController puzzleController;
     [SerializeField] private string interactText;
+    [SerializeField] private Player player;
 
     [Header("Colors")]
     [SerializeField] private Material blueMaterial;
@@ -39,6 +40,7 @@ public class SphereInteractuable : MonoBehaviour, IInteractuable
         if (isActivated) return;
 
         puzzleController.RegisterInput(sphereID, this);
+        player.Interacting = false;
     }
 
     public void SetColorCorrect()

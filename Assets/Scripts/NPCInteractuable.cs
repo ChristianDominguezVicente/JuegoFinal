@@ -13,6 +13,7 @@ public class NPCInteractuable : MonoBehaviour, IInteractuable
     [SerializeField] private float tiempoEntreLetras;
     [SerializeField] private GameObject cuadroDialogo;
     [SerializeField] private TextMeshProUGUI textoDialogo;
+    [SerializeField] private Player player;
 
     private bool hablando = false;
     private int indiceActual = -1;
@@ -76,6 +77,8 @@ public class NPCInteractuable : MonoBehaviour, IInteractuable
         indiceActual = -1;
         cuadroDialogo.SetActive(false);
         anim.SetBool("talking", false);
+
+        player.Interacting = false;
     }
 
     private IEnumerator EscribirFrase()
