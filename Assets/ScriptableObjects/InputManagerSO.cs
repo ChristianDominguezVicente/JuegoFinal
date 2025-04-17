@@ -12,6 +12,7 @@ public class InputManagerSO : ScriptableObject
     public event Action<Vector2> OnMover;
     public event Action OnInteract;
     public event Action OnCrouch;
+    public event Action OnPause;
     private void OnEnable()
     {
         misControles = new Controls();
@@ -21,6 +22,7 @@ public class InputManagerSO : ScriptableObject
         misControles.Gameplay.Mover.canceled += Mover;
         misControles.Gameplay.Interact.started += Interact;
         misControles.Gameplay.Crouch.started += Crouch;
+        misControles.Gameplay.Pause.started += Pause;
     }
 
     private void Mover(InputAction.CallbackContext ctx)
@@ -41,5 +43,10 @@ public class InputManagerSO : ScriptableObject
     private void Crouch(InputAction.CallbackContext ctx)
     {
         OnCrouch?.Invoke();
+    }
+
+    private void Pause(InputAction.CallbackContext ctx)
+    {
+        OnPause?.Invoke();
     }
 }

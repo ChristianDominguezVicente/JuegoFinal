@@ -28,6 +28,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float alturaNormal;
     [SerializeField] private float centroNormal;
 
+    [Header("PauseMenu")]
+    [SerializeField] private PauseMenu pauseMenu;
 
     private CharacterController controller;
     private Animator anim;
@@ -38,6 +40,7 @@ public class Player : MonoBehaviour
     private int keyCount = 0;
     private bool crouching = false;
     private bool interacting = false;
+    private bool gamePause = false;
 
     public int KeyCount { get => keyCount; set => keyCount = value; }
     public bool Interacting { get => interacting; set => interacting = value; }
@@ -54,6 +57,7 @@ public class Player : MonoBehaviour
         inputManager.OnMover += Mover;
         inputManager.OnInteract += Interact;
         inputManager.OnCrouch += Crouch;
+        inputManager.OnPause += Pause;
     }
 
     private void OnDisable()
@@ -62,6 +66,7 @@ public class Player : MonoBehaviour
         inputManager.OnMover -= Mover;
         inputManager.OnInteract -= Interact;
         inputManager.OnCrouch -= Crouch;
+        inputManager.OnPause -= Pause;
     }
 
     // Solo se va a ejecutar cuando se actualice el input de movimiento
@@ -149,6 +154,25 @@ public class Player : MonoBehaviour
         float distancia = alturaNormal - alturaCrouch;
 
         return !Physics.SphereCast(ray, 0.3f, distancia, queEsSuelo);
+    }
+
+    private void Pause()
+    {
+        if (gamePause)
+        {
+            pauseMenu.Resume();
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            gamePause = false;
+        }
+        else
+        {
+            pauseMenu.Pause();
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            gamePause = true;
+        }
+
     }
 
     // Start is called before the first frame update

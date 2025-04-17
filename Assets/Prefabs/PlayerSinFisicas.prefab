@@ -2465,6 +2465,7 @@ MonoBehaviour:
   centroCrouch: 0.5
   alturaNormal: 2
   centroNormal: 1
+  pauseMenu: {fileID: 0}
 --- !u!143 &1906998629010951401
 CharacterController:
   m_ObjectHideFlags: 0
